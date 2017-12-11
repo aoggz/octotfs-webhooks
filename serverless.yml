@@ -1,0 +1,75 @@
+
+# For full config options, check the docs:
+#    docs.serverless.com
+
+service: octotfs-webhooks
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-east-2
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ssm:GetParameters"
+      Resource: 
+        Fn::Join:
+          - ":"
+          - - "arn:aws:ssm::"
+            - Ref: 'AWS::Region'
+            - Ref: 'AWS::AccountId'
+            - "${self:provider.stage}/octotfs-webhooks/*" 
+  environment:
+    sqlServer: ${ssm:/${self:provider.stage}/octotfs-webhooks/sqlServer~true}
+    sqlUser: ${ssm:/${self:provider.stage}/octotfs-webhooks/sqlUser~true}
+    sqlPassword: ${ssm:/${self:provider.stage}/octotfs-webhooks/sqlPassword~true}
+    sqlDatabase: ${ssm:/${self:provider.stage}/octotfs-webhooks/sqlDatabase~true}
+    slackWebhookUrl: ${ssm:/${self:provider.stage}/octotfs-webhooks/slackWebhookUrl-devops~true}
+    
+
+# package:
+#   include:
+#     - handler.js
+#     - services/**
+
+functions:
+  workItemUpdates:
+    handler: handler.workItemUpdate
+    events:
+      - http: 
+          path: work-items/update
+          method: post
+
+## Can use this stack once CF supports SecureString types for SSM
+# resources:
+#   Resources:
+#     NewResource:
+#       Type: "AWS::SSM::Parameter"
+#       Properties: 
+#         Name: "/${self:provider.stage}/octotfs-webhooks/sqlServer"
+#         Type: SecureString
+#         Value: ${opt:sqlServer}
+#     NewResource:
+#       Type: "AWS::SSM::Parameter"
+#       Properties: 
+#         Name: "/${self:provider.stage}/octotfs-webhooks/sqlUser"
+#         Type: SecureString
+#         Value: ${opt:sqlUser}
+#     NewResource:
+#       Type: "AWS::SSM::Parameter"
+#       Properties: 
+#         Name: "/${self:provider.stage}/octotfs-webhooks/sqlPassword"
+#         Type: SecureString
+#         Value: ${opt:sqlPassword}
+#     NewResource:
+#       Type: "AWS::SSM::Parameter"
+#       Properties: 
+#         Name: "/${self:provider.stage}/octotfs-webhooks/sqlDatabase"
+#         Type: SecureString
+#         Value: ${opt:sqlDatabase}
+#     NewResource:
+#       Type: "AWS::SSM::Parameter"
+#       Properties: 
+#         Name: "/${self:provider.stage}/octotfs-webhooks/slackWebhookUrl-devops"
+#         Type: SecureString
+#         Value: ${opt:slackWebhookUrl}

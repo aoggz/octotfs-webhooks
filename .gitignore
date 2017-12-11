@@ -1,0 +1,4 @@
+.serverless
+.serverless/*
+node_modules
+tatus

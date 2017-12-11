@@ -1,0 +1,25 @@
+{
+  "name": "octotfs-webhooks",
+  "version": "0.1.0",
+  "description": "Collection of Lambda functions written using the Serverless framework to receive and process webhooks calls from Octopus Deploy and Team Foundation Server. Edit",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aoggz/octotfs-webhooks.git"
+  },
+  "author": "Andrew Ogburn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aoggz/octotfs-webhooks/issues"
+  },
+  "homepage": "https://github.com/aoggz/octotfs-webhooks#readme",
+  "dependencies": {
+    "aws-xray-sdk": "^1.1.2",
+    "mssql": "^4.0.4",
+    "slackify-html": "^1.0.1"
+  },
+  "devDependencies": {}
+}
