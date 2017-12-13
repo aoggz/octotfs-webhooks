@@ -3,21 +3,35 @@ var sql = require('mssql');
 
 module.exports.processWorkItemUpdate = (event) => {
 
-    console.log(event);
+    console.log(JSON.stringify(event));
 
   if (event && event.resource && event.resource.fields && event.resource.fields['System.State']) {
 
         console.log("State change processing.")
     
         var stateChange = event.resource.fields['System.State'];
-        var oldValue = stateChange.oldValue;
-        var newValue = stateChange.newValue;
+        var oldValue = stateChange.oldValue
+            ? stateChange.oldValue
+            : null;
+        var newValue = stateChange.newValue
+            ? stateChange.newValue
+            : stateChange;
     
-        var tfsWorkItemId = event.resource.workItemId;
-        var tfsAreaPath = event.resource.revision.fields['System.AreaPath'];        
+        var tfsWorkItemId = event.resource.workItemId
+            ? event.resource.workItemId
+            : event.resource.id;
+        var tfsAreaPath = event.resource.fields['System.AreaPath']
+            ? event.resource.fields['System.AreaPath']
+            : event.resource.revision.fields['System.AreaPath'];
     
-        var tfsUserId = event.resource.revisedBy.id;
-        var tfsUserFullName = event.resource.revisedBy.name;
+        var tfsUserId = event.resource.revisedBy
+            ? event.resource.revisedBy.id
+            : null;
+        var tfsUserFullName = event.resource.revisedBy
+            ? event.resource.revisedBy.name
+            : event.resource.fields['System.CreatedBy'];
+
+        console.log(tfsUserFullName);
     
         var teamId,
             workItemId,
@@ -62,14 +76,24 @@ function getStateId(state, sqlConnectionPool) {
     `INSERT INTO WorkItemStates (StateName) VALUES ('${state}')`,
     sqlConnectionPool
   )
-  : Promise.Resolve();
+  : Promise.resolve();
 }
     
 function getUserId(tfsUserId, fullName, sqlConnectionPool) {
+
+    var lastIndex = fullName.indexOf(" <");
+    if (lastIndex) {
+        fullName = fullName.substring(0, lastIndex);
+    }
+
+    var query = tfsUserId && tfsUserId != null
+        ? `SELECT TOP 1 Id FROM Users WHERE TfsUserId = '${tfsUserId}'`
+        : `SELECT TOP 1 Id FROM Users WHERE Name = '${fullName}'`;    
+
       return getItemId(
         "user",
         tfsUserId,
-        `SELECT TOP 1 Id FROM Users WHERE TfsUserId = '${tfsUserId}'`,
+        query,
         `INSERT INTO Users (TfsUserId, Name) VALUES ('${tfsUserId}', '${fullName}')`,
         sqlConnectionPool,
         true
