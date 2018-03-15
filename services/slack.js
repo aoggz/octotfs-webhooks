@@ -2,7 +2,7 @@
 var https = require('https');
 var slackify = require('slackify-html');
 
-module.exports.sendMessage = function(message, webHookUrlPath, context) {
+module.exports.sendMessage = function(message, webHookUrlPath) {
   try {
     var request = https.request({
       host: 'hooks.slack.com',
@@ -18,6 +18,7 @@ module.exports.sendMessage = function(message, webHookUrlPath, context) {
     request.write(message);
     request.end();
   } catch (err) {
-    context.log.error(err);
+    console.error(err);
+    throw err;
   }
 }

@@ -25,6 +25,7 @@ provider:
     sqlPassword: ${ssm:/${self:provider.stage}/octotfs-webhooks/sqlPassword~true}
     sqlDatabase: ${ssm:/${self:provider.stage}/octotfs-webhooks/sqlDatabase~true}
     slackWebhookUrl: ${ssm:/${self:provider.stage}/octotfs-webhooks/slackWebhookUrl-devops~true}
+    slackMachineEventWebhookUrl: ${ssm:/${self:provider.stage}/octotfs-webhooks/slackWebhookUrl-machineEvents~true}
     
 
 # package:
@@ -38,6 +39,12 @@ functions:
     events:
       - http: 
           path: work-items/update
+          method: post
+  machineEvents:
+    handler: handler.sendMachineEventAlert
+    events:
+      - http: 
+          path: machine-events
           method: post
 
 ## Can use this stack once CF supports SecureString types for SSM
